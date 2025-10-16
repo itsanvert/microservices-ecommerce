@@ -9,9 +9,9 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 const ProductCard = ({ product }: { product: ProductType }) => {
-  const [productTypes, setProductTypes] = useState({
-    size: product.sizes[0],
-    color: product.colors[0],
+  const [productTypes, setProductTypes] = useState<{ size: string; color: string }>({
+    size: product.sizes[0] ?? "",
+    color: product.colors[0] ?? "",
   });
 
   const { addToCart } = useCartStore();
@@ -39,13 +39,27 @@ const ProductCard = ({ product }: { product: ProductType }) => {
     toast.success("Product added to cart");
   };
 
+  // Get the image source based on selected color
+  const getImageSrc = () => {
+    if (!product.images) {
+      return "/placeholder.png";
+    }
+
+    // Access image by color key
+    const imageUrl =
+      productTypes.color !== undefined
+        ? product.images[productTypes.color]
+        : undefined;
+    return imageUrl || "/placeholder.png";
+  };
+
   return (
     <div className="shadow-lg rounded-lg overflow-hidden">
       {/* IMAGE */}
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-[2/3]">
           <Image
-            src={product.images ? [productTypes.color] : ""}
+            src={getImageSrc()}
             alt={product.name}
             fill
             className="object-cover hover:scale-105 transition-all duration-300"
